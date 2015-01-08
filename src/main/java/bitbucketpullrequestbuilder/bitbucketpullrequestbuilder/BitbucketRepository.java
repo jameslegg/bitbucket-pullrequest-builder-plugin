@@ -27,8 +27,9 @@ public class BitbucketRepository {
     public static final String BUILD_FINISH_SENTENCE = BUILD_FINISH_MARKER + " \n\n **%s** - %s";
     public static final String BUILD_REQUEST_MARKER = "test this please";
 
-    public static final String BUILD_SUCCESS_COMMENT =  ":star:SUCCESS";
-    public static final String BUILD_FAILURE_COMMENT = ":x:FAILURE";
+    public static final String BUILD_SUCCESS_COMMENT =  ":thumbsup:SUCCESS";
+    public static final String BUILD_FAILURE_COMMENT = ":poop:FAILURE";
+    public static final String BUILD_UNSTABLE_COMMENT = ":see_no_evil:UNSTABLE";
     private String projectPath;
     private BitbucketPullRequestsBuilder builder;
     private BitbucketBuildTrigger trigger;
@@ -91,11 +92,17 @@ public class BitbucketRepository {
         this.client.deletePullRequestComment(pullRequestId,commentId);
     }
 
-    public void postFinishedComment(String pullRequestId, String sourceCommit,  String destinationCommit, boolean success, String buildUrl) {
+    public void postFinishedComment(String pullRequestId, String sourceCommit,  String destinationCommit, String success, String buildUrl) {
         String message = BUILD_FAILURE_COMMENT;
-        if (success){
+        if (success == "SUCCESS"){
             message = BUILD_SUCCESS_COMMENT;
+        } else if (success == "UNSTABLE"){
+            message = BUILD_UNSTABLE_COMMENT;
+        } else {
+            message = BUILD_FAILURE_COMMENT;
         }
+
+
         String comment = String.format(BUILD_FINISH_SENTENCE, builder.getProject().getDisplayName(), sourceCommit, destinationCommit, message, buildUrl);
 
         this.client.postPullRequestComment(pullRequestId, comment);
